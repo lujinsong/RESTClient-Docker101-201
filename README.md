@@ -1,40 +1,38 @@
-# AlphaOfficeSetup
+# AlphaOffice RESTClient buildout
 
-These scripts suuport various Workshops for the AlphaOffice usecase.
+These scripts suuport the Docker 101-201 Workshops for the AlphaOffice usecase.
+
+The Dockfile will build a new image locally in your docker environment. It pulls the Oracle Instant Client 12.2.x
+from the Oracle Docker Store as the baseline.
+
+The image contains a Node.js application used to connect to defined datasources. Right now it supports Oracle 12c DB, MYSQL and a flat JSON file containing the PRODUCTS list used in the AlphaOffice Catalog UI.
+
+It runs in conjunction with any of the above datasources. In the case of an Oracle DB or MYSQL DB these databases need to already
+be running in other containers on the same docker subnet. They have also been populated with the AlphaOffice schema that is queried via this REST interface. The interface in turn is referenced from the Product Catalog UI container.
+
+This image is targeted towards supporting the advanced docker workshops created within the Solution Engineering group of Oracle Corporation.
+
+To Build:
+
+1) Change into the directory where the Dockerfile resides
+2) docker build -t npm/restclient .
+
+To Run: 
+(Depends on your datasource. These examples assume an Oracle or MYSQL datasource populated with the Alpha Office schema)
+The creation and population of those datasource containers are part of the Docker workshop series and require support files from another
+git repo)
+
+Example for Oracle DB: (Assumes container hostname to be 'oracledb-ao') 
+
+docker run -d -it --rm --name restclient -p=8002:8002 --link orcl:oracledb-ao -e ORACLE_CONNECT='oracledb-ao/orclpdb1.localdomain' -e DS='oracle' npm/restclient
+
+Example for MYSQL DB: (Assumes container hostname to be 'mysqldb-ao') 
+
+docker run -d -it --rm --name restclient -p=8002:8002 --link mysql:mysqldb-ao -e MYSQL_HOST='mysqldb-ao' -e DS='mysql' npm/restclient
   
-  1) AlphaOffice MYSQL setup uses:
-     setupAlphaUser.sh
-     createUserAlpha.sql
-     createProducts.sql
-  
-    These scripts will create the Alpha user in an AlphaOfficeDB MySQL instance. Once the Alpha user
-    is created the Product Catalog tables will be created and data loaded.
-  
-  2) AlphaOffice Container Service Classic REST API bonus lab:
-     token_session
-     alphaoffice-deploy.json
-     alphaoffice-stack.json
-     
-     These scripts use the Container Service Classic REST API's to deploy the three containers
-     created in previous labs. The images must be already pushed to a docker registry.
-     
-  3) AlphaOffice ORACLE database setup scripts (Modified to work with populating an EE version of
-     the Oracle database obtained from the Oracle Docker Store
-     )
-     The setupAlphaDB.sql is run from within a OracleDB container from SQLPLUS using the mounted
-     volume that's defined for that container.
-     
-     The setup does the following:
-       Sets NOARCHIVELOG to conserve container disk space
-       Configures HTTP and HTTPS ports for Enterprise Express
-       Creates the "alpha" user in the supplied PDB
-       populates the PRODUCTS and PRODUCT_CATEGORIES tables
-       
-     Ex: (in container)
-       sqlplus / as sysdba
-       SQL> @/<your-mount-point/setupAlphaDB.sql
-     
-       setupAlphaDB.sql
-       products.in
-       categories.in
-  
+Example for JSON file:
+
+docker run -d -it --rm --name restclient -p=8002:8002 -e DS='json' npm/restclient
+
+When running you can test in a local browser at "localhost:8002/products". You should get 57 JSON formatted records returned...
+ 
