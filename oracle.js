@@ -85,6 +85,7 @@ app.get('/products', function(req, res) {
         console.log('sql executed')
 /*	    console.log(rows);  */
         var products = {"Products" : rows}
+        res.writeHead(200, {'Content-Type': 'application/json'});
         res.end(JSON.stringify(products));
     });
 
@@ -92,7 +93,8 @@ app.get('/products', function(req, res) {
 
     console.log('/products api called')
     console.log('JSON file used...')
-
+  
+    res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(myJSON));
   }
 
@@ -126,7 +128,7 @@ app.get('/product/:id', function(req, res) {
             }
             console.log('sql executed')
          /*   console.log(result.rows); */
-            var products = {"Products" : result.rows}
+            var products = {"Product" : result.rows}
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify(products));   
             doRelease(connection);
@@ -152,6 +154,7 @@ app.get('/product/:id', function(req, res) {
 	    console.log('sql executed')
 	 /*   console.log(rows);  */
         var product = {"Product" : rows[0]}
+        res.writeHead(200, {'Content-Type': 'application/json'});
         res.end(JSON.stringify(product));
     });
 
